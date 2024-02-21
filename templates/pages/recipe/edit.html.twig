@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier une Recette
+{% endblock %}
+
+{% block body %}
+
+	<div class="container">
+
+		<h1 class="mt-4">Modifier une Recette</h1>
+          
+    
+
+{% for message in app.flashes('error') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+       {{ form_start(form) }}
+        {{ form_widget(form) }}
+        {{ form_errors(form) }}
+
+        
+
+ <button type="submit" class="btn btn-primary mt-4">
+           Modifier
+        </button>
+
+
+    
+
+      
+    {{ form_end(form) }}
+		
+
+	{% endblock %}
+

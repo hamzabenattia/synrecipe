@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Recipes
+{% endblock %}
+
+{% block body %}
+	{% if recipes is empty %}
+			<div class="alert alert-info d-flex align-content-center m-5 justify-content-center ">
+				<p>Vous n'avez pas encore des recette</p>
+			</div>
+		{% else %}
+	<div class="container">
+	
+			<h1>Mes Recette:
+			</h1>
+			<spam>
+				Nombre total d'ingrédients:
+				{{ recipes.getTotalItemCount }}
+
+				
+
+				
+
+				<div class='d-flex justify-content-end'>
+					<a href="{{path('recettes.add')}}" class="btn btn-secondary">
+						Créer nouveau Recette
+					</a>
+				</div>
+
+				{% for message in app.flashes('success') %}
+					<div class="alert alert-success mt-3">
+						{{ message }}
+					</div>
+				{% endfor %}
+
+				<table class="table table-hover mt-4">
+					<thead>
+
+						<tr>
+							<th scope="col">ID</th>
+							<th scope="col">Nom</th>
+							<th scope="col">Temps</th>
+							<th scope="col">Nombre de personne</th>
+							<th scope="col">Difficulty</th>
+							<th scope="col">Description</th>
+							<th scope="col">Prix</th>
+							<th scope="col">Action</th>
+
+
+						</tr>
+					</thead>
+					<tbody>
+						{% for recipe in recipes %}
+							<tr>
+								<th scope="row">{{recipe.id}}</th>
+								<td>{{ recipe.name|capitalize }}</td>
+								<td>{{recipe.time}}</td>
+								<td>{{ recipe.nbPeople is null ? 'Non Renseigné' : recipe.nbPeople }}</td>
+								<td>{{ recipe.difficulty }}</td>
+								<td>{{ recipe.description }}</td>
+                                <td>{{ recipe.price }}</td>
+								<td>
+									<a href="{{path('recettes.edit', {'id': recipe.id})}}" class="btn btn-warning">Modifier</a>
+									<a href="{{path('recettes.delete', {'id': recipe.id})}}" class="btn btn-danger">Supprimer</a>
+								</td>
+							</tr>
+						{% endfor %}
+
+					</tbody>
+				</table>
+				<div class="navigation d-flex justify-content-center mt-4">
+					{{ knp_pagination_render(recipes) }}
+				</div>
+
+			</div>
+
+
+		{% endif %}
+
+
+	{% endblock %}

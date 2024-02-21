@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un Ingredient
+{% endblock %}
+
+{% block body %}
+
+	<div class="container">
+    
+		<h1 class="mt-4">Création d'un nouveau ingrédient</h1>
+
+{% for message in app.flashes('error') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+		{{ form_start(form) }}
+
+		<div class="form-group">
+			{{ form_label(form.name) }}
+			{{ form_widget(form.name) }}
+			<div class="form-error">
+				{{ form_errors(form.name) }}
+			</div>
+		</div>
+		<div class="form-group">
+			{{ form_label(form.price) }}
+			{{ form_widget(form.price) }}
+		<div class="form-error">
+				{{ form_errors(form.price) }}
+			</div>
+		</div>
+
+        <p>
+        {{ form_errors(form) }}
+        </p>
+
+
+		{{ form_end(form) }}
+
+		
+
+	{% endblock %}
+
