@@ -1,0 +1,28 @@
+{% extends "base.html.twig" %}
+
+{% block title %}
+	SymRecipe - Inscription
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<h1 class="mt-4">Formulaire d'inscription</h1>
+		<p class="mt-4">Inscrivez-vous pour accéder à toutes les fonctionnalités de SymRecipe !</p>
+
+		{{ form_start(form) }}
+		{{ form_widget(form) }}
+
+<div class="form-group">
+		<a class='mt-4' href="{{ path('app_login') }}">Déjà inscrit ? Connectez-vous !</a>
+		<br/>
+		<button type="submit" class="btn btn-primary mt-4">S'inscrire</button>
+		</div>
+		
+		{{ form_end(form) }}
+
+
+		
+
+
+		</div>
+	{% endblock %}

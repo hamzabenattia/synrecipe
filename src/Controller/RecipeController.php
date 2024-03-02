@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Recipie;
+use App\Entity\User;
 use App\Form\RecipeType;
 use App\Repository\RecipieRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class RecipeController extends AbstractController
 {
@@ -24,11 +25,11 @@ class RecipeController extends AbstractController
      * @return Response
      */
     #[Route('/recettes', name: 'recettes.index' , methods: ['GET'])]
-    public function index(RecipieRepository $repo, PaginatorInterface $paginator, Request $request): Response
+    public function index(RecipieRepository $repo, PaginatorInterface $paginator, Request $request, #[CurrentUser] User $user): Response
     {
 
         $recipes = $paginator->paginate(
-            $repo->findAll(), /* query NOT result */
+            $repo->findBy(['user' => $user] ), /* query NOT result */
             $request->query->getInt('page', 1), /*page number*/
             10 /*limit per page*/
         );
@@ -39,7 +40,7 @@ class RecipeController extends AbstractController
 
 
     #[Route('/recette/new', name: 'recettes.add', methods: ['GET', 'POST'])]
-    public function add(Request $request , EntityManagerInterface $manager): Response
+    public function add(Request $request , EntityManagerInterface $manager, #[CurrentUser] User $user): Response
     {
         $recipe = new Recipie();
         $form = $this->createForm(RecipeType::class, $recipe);
@@ -47,6 +48,7 @@ class RecipeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()){
             $recipe= $form->getData();
+            $recipe->setUser($user);
             $manager->persist($recipe);
             $manager->flush();
             $this->addFlash(
