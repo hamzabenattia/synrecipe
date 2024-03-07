@@ -4,24 +4,19 @@
 {% endblock %}
 
 {% block body %}
-	{% if recipes is empty %}
-			<div class="alert alert-info d-flex align-content-center m-5 justify-content-center ">
-				<p>Vous n'avez pas encore des recette</p>
-			</div>
-		{% else %}
+	
 	<div class="container">
 	
 			<h1>Mes Recette:
 			</h1>
+			<div class='d-flex justify-content-between'>
 			<spam>
 				Nombre total d'ingrédients:
 				{{ recipes.getTotalItemCount }}
+			</spam>
+
 
 				
-
-				
-
-				<div class='d-flex justify-content-end'>
 					<a href="{{path('recettes.add')}}" class="btn btn-secondary">
 						Créer nouveau Recette
 					</a>
@@ -32,6 +27,12 @@
 						{{ message }}
 					</div>
 				{% endfor %}
+
+				{% if recipes is empty %}
+			<div class="alert alert-info d-flex align-content-center m-5 justify-content-center ">
+				<p>Vous n'avez pas encore des recette</p>
+			</div>
+		{% else %}
 
 				<table class="table table-hover mt-4">
 					<thead>

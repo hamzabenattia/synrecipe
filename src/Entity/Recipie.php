@@ -7,11 +7,16 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+
 
 
 #[ORM\Entity(repositoryClass: RecipieRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
+
 class Recipie
 {
     #[ORM\Id]
@@ -44,6 +49,15 @@ class Recipie
     #[Assert\NotBlank]
     private ?string $description = null;
 
+
+
+    #[Vich\UploadableField(mapping: 'recettes', fileNameProperty: 'imageName')]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?string $imageName = null;
+
+
     #[ORM\Column(nullable: true)]
     #[Assert\Positive]
     #[Assert\LessThan(1001)]
@@ -67,10 +81,20 @@ class Recipie
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
+    #[ORM\Column]
+    private ?bool $isPublic = false;
+
+    #[ORM\OneToMany(targetEntity: Mark::class, mappedBy: 'recipe', orphanRemoval: true)]
+    private Collection $marks;
+
+
+    private ?float $averageMark = null;
+
     public function __construct()
     {
          $this->ingredients = new ArrayCollection();
          $this ->createdAt = new \DateTimeImmutable();
+         $this->marks = new ArrayCollection();
     }
 
     public function __toString()
@@ -148,6 +172,37 @@ class Recipie
 
         return $this;
     }
+
+
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updateAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageName(?string $imageName): void
+    {
+        $this->imageName = $imageName;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+
+
 
     public function getPrice(): ?float
     {
@@ -232,4 +287,60 @@ class Recipie
 
         return $this;
     }
+
+    public function isIsPublic(): ?bool
+    {
+        return $this->isPublic;
+    }
+
+    public function setIsPublic(bool $isPublic): static
+    {
+        $this->isPublic = $isPublic;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Mark>
+     */
+    public function getMarks(): Collection
+    {
+        return $this->marks;
+    }
+
+    public function addMark(Mark $mark): static
+    {
+        if (!$this->marks->contains($mark)) {
+            $this->marks->add($mark);
+            $mark->setRecipe($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMark(Mark $mark): static
+    {
+        if ($this->marks->removeElement($mark)) {
+            // set the owning side to null (unless already changed)
+            if ($mark->getRecipe() === $this) {
+                $mark->setRecipe(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
+    public function getAverageMark(): ?float
+    {
+     $sum = 0;
+        foreach ($this->marks as $mark) {
+            $sum += $mark->getMark();
+        }
+
+        return  count($this->marks) >0 ? $sum / count($this->marks) : 0 ;
+
+    }
+
 }

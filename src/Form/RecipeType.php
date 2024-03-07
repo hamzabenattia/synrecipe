@@ -18,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class RecipeType extends AbstractType
 {
@@ -93,6 +94,18 @@ class RecipeType extends AbstractType
 
                 ]
             )
+            ->add('imageFile', VichFileType::class, [
+                
+                'label' => 'Image de la recette',
+                'label_attr' => [
+                    'class' => 'form-label mt-4'
+                ],
+                'required' => false,
+                'allow_delete' => true,
+                'delete_label' => 'Supprimer l\'image',
+                'asset_helper' => true,
+
+            ])
             ->add('isFavorite', CheckboxType::class, [
                 'attr' => [
                     'class' => 'form-check-input',
@@ -102,7 +115,20 @@ class RecipeType extends AbstractType
                     'class' => 'form-check-label'
                 ],
                 'required' => false,
+                
             ])
+
+            ->add('isPublic', CheckboxType::class, [
+                'attr' => [
+                    'class' => 'form-check-input',
+                ],
+                'label' => 'Recette publique',
+                'label_attr' => [
+                    'class' => 'form-check-label'
+                ],
+                'required' => false,
+            ]
+            )
             ->add('ingredients', EntityType::class, [
                 'class' => Ingredient::class,
                 'query_builder' => function (IngredientRepository $er) {

@@ -9,7 +9,45 @@
   <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
   <hr class="my-4">
   <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-  <a class="btn btn-primary btn-lg" href="{{path('app_register')}}" role="button">Inscription</a>
+  {% if app.user %}
+  
+  <a class="btn btn-primary btn-lg" href="{{path('recettes.add')}}" role="button">Ajouter une recette</a>
+  {% else %}
+      <a class="btn btn-primary btn-lg" href="{{path('app_register')}}" role="button">Inscription</a>
+    
+  {% endif %}
+
 </div>
+<div class='my-4 d-flex justify-content-between'>
+<h1> Recette partager par la communité </h1>
+<a href="{{path('recettesPublic')}}" class='text-decoration-none'> <h4> Voir Tous</h4> </a>
+</div>
+<div class='d-flex flex-wrap'>
+{% if recipes is null %}
+    <p> Aucune recette n'a été trouvé </p>
+{% else %}
+    {% for recipe in recipes %}
+    <a href="{{path('recettes.show', {'id': recipe.id})}}" class="text-decoration-none">
+<div class="card border-primary mb-3 mx-3" style="max-width: 20rem;">
+  <img src="{{ vich_uploader_asset(recipe, 'imageFile') }}" class="card-img-top" alt={{recipe.name}}>
+
+  <div class="card-header">Recette Num°{{recipe.id}}</div>
+
+  <div class="card-body">
+    <h4 class="card-title">{{recipe.name}}</h4>
+    <p class="card-text"> {{ recipe.description|slice(0, 100) ~ '....' }}</p>
+    <p class="card-text"> <small class="text-muted">Publier le {{recipe.createdAt|date('d/m/Y')}}</small></p> 
+    <small>Rating : {{ recipe.averageMark|round('2') }} / 5</small>
+    
+  </div>
+</div>
+</a>
+
+{% endfor %}
+
+    
+{% endif %}
+</div>
+
 </div>
 {% endblock %}

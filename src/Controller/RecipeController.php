@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Mark;
 use App\Entity\Recipie;
 use App\Entity\User;
+use App\Form\MarkType;
 use App\Form\RecipeType;
+use App\Repository\MarkRepository;
 use App\Repository\RecipieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -13,6 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Flex\Recipe;
 
 class RecipeController extends AbstractController
 {
@@ -66,9 +71,74 @@ class RecipeController extends AbstractController
 
 
 
+    #[Route('/recettes/all/', name: 'recettesPublic', methods: ['GET'])]
+    public function showall (RecipieRepository $repo , PaginatorInterface $paginator, Request $request): Response
+    {
+
+        $recipes = $paginator->paginate(
+            $repo->getPublicRecipie(null),
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+        
+
+        return $this->render('pages/recipe/showPublic.html.twig',[
+            'recipes' => $recipes
+        ]);
+    }
+
+
+
+
+
+    #[Route('/recette/view/{id}', name: 'recettes.show', methods: ['GET', 'POST'])]
+    #[IsGranted('VIEW', subject: 'recipe' , message: 'Vous n\'avez pas accès à cette recette')]
+    public function show (Recipie $recipe , Request $request , EntityManagerInterface $manager , MarkRepository $repo): Response
+    {
+        $form=$this->createForm(MarkType::class);
+        $form->handleRequest($request);
+
+
+        $existeMark = $repo->findOneBy(['user' => $this->getUser(), 'recipe' => $recipe]);
+
+if($form->isSubmitted() && $form->isValid()){
+
+
+    if ($existeMark){
+        $this->addFlash(
+            'danger',
+            'Vous avez déjà noté cette recette.'
+        );
+        return $this->redirectToRoute('recettes.show', ['id' => $recipe->getId()]);
+    }
+
+    $mark = $form->getData();
+    $mark->setRecipe($recipe);
+        $mark->setUser($this->getUser());
+    $manager->persist($mark);
+
+    $manager->flush();
+    $this->addFlash(
+        'success',
+        'La recette a bien été notée.'
+    );
+    return $this->redirectToRoute('recettes.show', ['id' => $recipe->getId()]);
+}
+
+
+        return $this->render('pages/recipe/show.html.twig',[
+            'recipe' => $recipe,
+            'form' => $form->createView(),
+            'existeMark' => $existeMark
+
+        ]);
+
+    }
+
 
 
     #[Route('/recette/{id}', name: 'recettes.edit', methods: ['GET', 'POST'])]
+    #[IsGranted('EDIT', subject: 'recipe' , message: 'Vous n\'avez pas accès à cette recette')]
     public function edit(Recipie $recipe , EntityManagerInterface $manager , Request $request): Response
     {
        
@@ -95,6 +165,8 @@ class RecipeController extends AbstractController
 
 
     #[Route('/recette/delete/{id}', name: 'recettes.delete', methods: ['GET'])]
+    #[IsGranted('Edit', subject: 'recipe' , message: 'Vous n\'avez pas accès à cette recette')]
+
     public function delete(Recipie $recipe, EntityManagerInterface $manager ): Response
     {
         $manager->remove($recipe);

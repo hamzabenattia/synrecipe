@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Liste des recettes {% endblock %}
+
+{% block body %}
+<div class="container">
+<h1 class='mb-4'> Tous vous recette partager </h1>
+<div class='d-flex flex-wrap'>
+{% if recipes is null %}
+    <p> Aucune recette n'a été trouvé </p>
+{% else %}
+    {% for recipe in recipes %}
+        <a href="{{path('recettes.show', {'id': recipe.id})}}" class="text-decoration-none">
+<div class="card border-primary mb-3 mx-3" style="max-width: 20rem;">
+<img src="{{ vich_uploader_asset(recipe, 'imageFile') }}" class="card-img-top" alt={{recipe.name}}>
+  <div class="card-header">Recette Num°{{recipe.id}}</div>
+  <div class="card-body">
+    <h4 class="card-title">{{recipe.name}}</h4>
+    <p class="card-text"> {{ recipe.description|slice('0', '100') ~ '....' }}</p>
+   
+  </div>
+</div>
+</a>
+
+{% endfor %}
+
+    
+{% endif %}
+</div>
+
+</div>
+
+{% endblock %}
+
+
+

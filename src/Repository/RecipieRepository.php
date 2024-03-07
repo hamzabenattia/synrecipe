@@ -45,4 +45,23 @@ class RecipieRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+
+
+
+
+public function getPublicRecipie(?int $nbR) : array
+        {
+
+            return $this->createQueryBuilder('r')
+            ->where('r.isPublic = true')
+            ->setMaxResults($nbR)
+            ->orderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult()
+            ;
+            
+
+        }
+        
 }
