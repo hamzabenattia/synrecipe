@@ -31,7 +31,7 @@ class ContactController extends AbstractController
             
             $mailer->sendEmail(
                 $contact->getEmail(),
-                'admin@symreceipe.fr',
+                'admin@kh5zlaq8.mailosaur.net',
                 $contact->getSubject(),
                 'hello',
                 '<h1>hello</h1>'
